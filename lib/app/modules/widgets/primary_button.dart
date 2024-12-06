@@ -17,10 +17,15 @@ class CustomPrimaryButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: Get.theme.colorScheme.primary,
         foregroundColor: Get.theme.colorScheme.onPrimary,
-        fixedSize: Size(
-          double.infinity,48)
+        minimumSize: const Size(double.infinity,48),
+        // fixedSize: Size(
+        //   double.infinity,48)
       ),
-      child: Text(buttonText),
+      child:Text(buttonText), 
+
+        // child: Row(
+        // mainAxisAlignment: MainAxisAlignment.center,
+        // children:[Text(buttonText),SizedBox(width: 10,),Icon(Icons.insert_comment_sharp)]),
     );
   }
 }

@@ -1,17 +1,20 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
-class LoginController extends GetxController {
-  //TODO: Implement LoginController
+class SignupController extends GetxController {
+  //TODO: Implement SignupController
 
-  final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
   final TextEditingController emailcontroller = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   @override
   void onClose() {
     emailcontroller.dispose();
     passwordController.dispose();
+    confirmPasswordController.dispose();
     super.onClose();
   }
 
@@ -35,17 +38,27 @@ class LoginController extends GetxController {
     return null;
   }
 
-  bool validateForm() {
-    final isValid = loginFormKey.currentState!.validate();
-    if (!isValid) {
-      return false;
+  String? validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return "please confirm your password";
     }
-    loginFormKey.currentState!.save();
-    return true;
+    if (value != passwordController.text) {
+      return "password no match !";
+    }
+
+    return null;
   }
 
-  Future<void> login() async {
-    if (validateForm()) {
+  bool validateForm(){
+    final isValid = signUpFormKey.currentState!.validate();
+    if(!isValid){
+      return false;
+    }
+    signUpFormKey.currentState!.save();
+    return true;
+  }
+  Future<void> signup() async {
+    if(validateForm()){
       //TODO: Implement Signup API call
       // You can use a package like http to make the API call
       //...
@@ -53,6 +66,7 @@ class LoginController extends GetxController {
       // await http.post('https://your-api-url.com/signup', body: {
       //   'email': emailController.text,
       //   'password': passwordController.text
+
     }
   }
 }

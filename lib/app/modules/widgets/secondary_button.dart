@@ -13,7 +13,10 @@ class CustomSecondaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton(
       onPressed: onPressed,
-      child: Text(buttonText),
+      style: OutlinedButton.styleFrom(
+        minimumSize: Size(double.infinity,48),
+      ),
+      child:Text(buttonText),
     );
   }
 }

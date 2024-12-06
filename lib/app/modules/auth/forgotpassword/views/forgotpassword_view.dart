@@ -1,15 +1,12 @@
-import 'package:blogapp/app/modules/widgets/custom_text_field.dart';
-import 'package:blogapp/app/modules/widgets/primary_button.dart';
-import 'package:blogapp/app/modules/widgets/secondary_button.dart';
-import 'package:blogapp/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
-
+import '../../../widgets/custom_text_field.dart';
+import '../../../widgets/primary_button.dart';
 import 'package:get/get.dart';
 
-import '../controllers/login_controller.dart';
+import '../controllers/forgotpassword_controller.dart';
 
-class LoginView extends GetView<LoginController> {
-  const LoginView({super.key});
+class ForgotpasswordView extends GetView<ForgotpasswordController> {
+  const ForgotpasswordView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,11 +21,11 @@ class LoginView extends GetView<LoginController> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 30, vertical: 50), // Optional padding
             child: Form(
-              key: controller.loginFormKey,
+              key: controller.forgotPasswordFormKey,
               child: Column(
                 children: [
                   Text(
-                    'Login here',
+                    'You \'re forgot your password',
                     style: TextStyle(
                       fontSize: Get.theme.textTheme.headlineLarge!.fontSize,
                       color: Get.theme.primaryColor,
@@ -39,7 +36,7 @@ class LoginView extends GetView<LoginController> {
                     height: 16,
                   ),
                   Text(
-                    'Welcome back you\' ve been missed',
+                    'enter your email and will your a link to reset your password',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: Get.theme.textTheme.headlineSmall!.fontSize,
@@ -58,41 +55,16 @@ class LoginView extends GetView<LoginController> {
                         return controller.validateEmail(value);
                       }),
                   const SizedBox(
-                    height: 16,
-                  ),
-                  CustomTextFromField(
-                    controller: controller.passwordController,
-                    hintText: 'Enter your password',
-                    isPassword: true,
-                    textInputType: TextInputType.visiblePassword,
-                    labelText: 'Password',
-                    suffixIcon: Icons.visibility_off,
-                    validator: (String? value) {
-                      return controller.validatePassword(value);
-                    },
+                    height: 24,
                   ),
                   const SizedBox(
-                    height: 24,),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: TextButton(
-                      child: const Text(
-                        'forgot your password ?',
-                      ),
-                      onPressed: () => Get.toNamed(Routes.FORGOTPASSWORD),
-                      style: ButtonStyle(),
-                    ),
+                    height: 24,
                   ),
-                                 
-                  const SizedBox(height: 24,),
                   CustomPrimaryButton(
-                    buttonText: "Sign In",
-                    onPressed: () {controller.login();},
-                  ),
-                  const SizedBox(height: 24,),
-                  CustomSecondaryButton(
-                    buttonText: "Create new account",
-                    onPressed: () => Get.toNamed(Routes.SIGNUP),
+                    buttonText: "Continue",
+                    onPressed: () {
+                      controller.forgotPassword();
+                    },
                   ),
                 ],
               ),

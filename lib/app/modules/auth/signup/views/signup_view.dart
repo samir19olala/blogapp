@@ -1,15 +1,14 @@
+import 'package:blogapp/app/modules/widgets/secondary_button.dart';
+import 'package:flutter/material.dart';
 import 'package:blogapp/app/modules/widgets/custom_text_field.dart';
 import 'package:blogapp/app/modules/widgets/primary_button.dart';
-import 'package:blogapp/app/modules/widgets/secondary_button.dart';
 import 'package:blogapp/app/routes/app_pages.dart';
-import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 
-import '../controllers/login_controller.dart';
+import '../controllers/signup_controller.dart';
 
-class LoginView extends GetView<LoginController> {
-  const LoginView({super.key});
+class SignupView extends GetView<SignupController> {
+  const SignupView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,11 +23,11 @@ class LoginView extends GetView<LoginController> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 30, vertical: 50), // Optional padding
             child: Form(
-              key: controller.loginFormKey,
+              key: controller.signUpFormKey,
               child: Column(
                 children: [
                   Text(
-                    'Login here',
+                    'Create account',
                     style: TextStyle(
                       fontSize: Get.theme.textTheme.headlineLarge!.fontSize,
                       color: Get.theme.primaryColor,
@@ -39,7 +38,7 @@ class LoginView extends GetView<LoginController> {
                     height: 16,
                   ),
                   Text(
-                    'Welcome back you\' ve been missed',
+                    'Create an account so you can access all the features',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: Get.theme.textTheme.headlineSmall!.fontSize,
@@ -71,29 +70,35 @@ class LoginView extends GetView<LoginController> {
                       return controller.validatePassword(value);
                     },
                   ),
+                  const SizedBox(height: 16,),
+
+                  CustomTextFromField(
+                    controller: controller.confirmPasswordController,
+                    hintText: 'Confirm password',
+                    isPassword: true,
+                    textInputType: TextInputType.visiblePassword,
+                    labelText: 'Repeat Password',
+                    suffixIcon: Icons.visibility_off,
+                    validator: (String? value) {
+                      return controller.validateConfirmPassword(value);
+                    },
+                  ),
                   const SizedBox(
-                    height: 24,),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: TextButton(
-                      child: const Text(
-                        'forgot your password ?',
-                      ),
-                      onPressed: () => Get.toNamed(Routes.FORGOTPASSWORD),
-                      style: ButtonStyle(),
-                    ),
+                    height: 24,
                   ),
-                                 
-                  const SizedBox(height: 24,),
                   CustomPrimaryButton(
-                    buttonText: "Sign In",
-                    onPressed: () {controller.login();},
+                    buttonText: "Sign Up",
+                    onPressed: () {
+                      controller.signup();
+                    },
                   ),
-                  const SizedBox(height: 24,),
+                  const SizedBox(
+                    height: 24,
+                  ),
                   CustomSecondaryButton(
-                    buttonText: "Create new account",
-                    onPressed: () => Get.toNamed(Routes.SIGNUP),
-                  ),
+                    buttonText: 'already have account',
+                    onPressed: () => Get.toNamed(Routes.LOGIN),
+                  )
                 ],
               ),
             ),
