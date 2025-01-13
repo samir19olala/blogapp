@@ -1,9 +1,8 @@
-import 'package:get/get.dart';
 
 class ApiConfig {
   // android addr 10.0.2.2
   static const String baseUrl = 
-      'http://192.168.1.101.3000/api/v1'; // À remplacer par votre URL d'API
+      'http://192.168.1.195.3000/api/v1'; // À remplacer par votre URL d'API
 
   // Endpoints
   static const String login = '/auth/login';
