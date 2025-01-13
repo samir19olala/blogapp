@@ -70,8 +70,9 @@ class SignupView extends GetView<SignupController> {
                       return controller.validatePassword(value);
                     },
                   ),
-                  const SizedBox(height: 16,),
-
+                  const SizedBox(
+                    height: 16,
+                  ),
                   CustomTextFromField(
                     controller: controller.confirmPasswordController,
                     hintText: 'Confirm password',
@@ -86,12 +87,15 @@ class SignupView extends GetView<SignupController> {
                   const SizedBox(
                     height: 24,
                   ),
-                  CustomPrimaryButton(
-                    buttonText: "Sign Up",
-                    onPressed: () {
-                      controller.signup();
-                    },
-                  ),
+                  Obx(() {
+                    return CustomPrimaryButton(
+                      isSubmitting: controller.isSubmitting.value,
+                      buttonText: "Sign Up",
+                      onPressed: () {
+                        controller.signup();
+                      },
+                    );
+                  }),
                   const SizedBox(
                     height: 24,
                   ),

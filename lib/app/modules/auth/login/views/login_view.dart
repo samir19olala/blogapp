@@ -72,24 +72,33 @@ class LoginView extends GetView<LoginController> {
                     },
                   ),
                   const SizedBox(
-                    height: 24,),
+                    height: 24,
+                  ),
                   Align(
                     alignment: Alignment.topRight,
                     child: TextButton(
+                      style: ButtonStyle(),
                       child: const Text(
                         'forgot your password ?',
                       ),
                       onPressed: () => Get.toNamed(Routes.FORGOTPASSWORD),
-                      style: ButtonStyle(),
                     ),
                   ),
-                                 
-                  const SizedBox(height: 24,),
-                  CustomPrimaryButton(
-                    buttonText: "Sign In",
-                    onPressed: () {controller.login();},
+                  const SizedBox(
+                    height: 24,
                   ),
-                  const SizedBox(height: 24,),
+                  Obx(() {
+                    return CustomPrimaryButton(
+                      isSubmitting: controller.isSubmitting.value,
+                      buttonText: "Sign In",
+                      onPressed: () {
+                        controller.login();
+                      },
+                    );
+                  }),
+                  const SizedBox(
+                    height: 24,
+                  ),
                   CustomSecondaryButton(
                     buttonText: "Create new account",
                     onPressed: () => Get.toNamed(Routes.SIGNUP),

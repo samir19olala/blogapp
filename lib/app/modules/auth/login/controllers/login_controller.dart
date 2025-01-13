@@ -1,9 +1,25 @@
+import 'package:blogapp/app/core/config/api_config.dart';
+import 'package:blogapp/app/core/utils/snackbar_utils.dart';
+import 'package:blogapp/app/data/models/user_model.dart';
+import 'package:blogapp/app/data/services/api_service.dart';
+import 'package:blogapp/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
-  //TODO: Implement LoginController
+  //todo: Implement LoginController
+  final ApiService _apiService = Get.find<ApiService>();
 
+  // Observables
+  final _currentUser = Rx<User?>(null);
+  final isSubmitting = Rx<bool>(false);
+
+  // getters
+  User? get currentUser => _currentUser.value;
+  bool get isLoading => isSubmitting.value;
+  bool get isAuthenticated =>_apiService.isAuthenticated;
+
+  // gestion formulaire
   final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   final TextEditingController emailcontroller = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -13,6 +29,14 @@ class LoginController extends GetxController {
     emailcontroller.dispose();
     passwordController.dispose();
     super.onClose();
+  }
+
+  @override
+  void onInit(){
+    super.onInit();
+    if(_apiService.isAuthenticated){
+      _loadUserProfile();
+    }
   }
 
   String? validateEmail(String? value) {
@@ -46,13 +70,27 @@ class LoginController extends GetxController {
 
   Future<void> login() async {
     if (validateForm()) {
-      //TODO: Implement Signup API call
-      // You can use a package like http to make the API call
-      //...
-      // Example:
-      // await http.post('https://your-api-url.com/signup', body: {
-      //   'email': emailController.text,
-      //   'password': passwordController.text
+      try {
+        if(isSubmitting.value) return;
+        isSubmitting.value = true;
+        await _apiService.login(emailcontroller.text,passwordController.text);
+        await _loadUserProfile();
+        SnackbarUtils.showSuccess(message:"connexion reussite ");
+        Get.offAllNamed(Routes.HOME);
+      }catch (e){
+        SnackbarUtils.showError(message: e.toString(),position: SnackPosition.BOTTOM);
+      }finally{
+        isSubmitting.value = false;
+      }
+    }
+  }
+
+  Future<void> _loadUserProfile() async {
+    try{
+    final userData = await _apiService.get<Map<String,dynamic>>(ApiConfig.currentUser,(data)=>data);
+    _currentUser.value = User.fromJson(userData);
+    }catch(e){
+      SnackbarUtils.showError(message: "impossible de charger le profil utilisateur ",title:'Error',position: SnackPosition.BOTTOM);
     }
   }
 }

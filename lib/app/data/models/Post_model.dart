@@ -1,3 +1,4 @@
+
 class Post {
   final int id;
   final String title;
@@ -35,7 +36,7 @@ class Post {
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
-      id: json['id'],
+      id: json['_id'],
       title: json['title'],
       content: json['content'],
       category: json['category'],

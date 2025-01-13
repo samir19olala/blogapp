@@ -1,4 +1,4 @@
-import '../models/Post_model.dart';
+import '../models/post_model.dart';
 
 class MockService {
   static List<Post> getMockPosts() {

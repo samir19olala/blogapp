@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 class CustomPrimaryButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback? onPressed;
+  final bool isSubmitting;
   const CustomPrimaryButton({
   super.key, 
   required this.buttonText, 
-  this.onPressed
+  required this.onPressed,
+  this.isSubmitting=false,
   });
 
   @override
@@ -21,7 +23,7 @@ class CustomPrimaryButton extends StatelessWidget {
         // fixedSize: Size(
         //   double.infinity,48)
       ),
-      child:Text(buttonText), 
+      child:isSubmitting?const CircularProgressIndicator(): Text(buttonText), 
 
         // child: Row(
         // mainAxisAlignment: MainAxisAlignment.center,

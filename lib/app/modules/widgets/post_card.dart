@@ -1,4 +1,4 @@
-import 'package:blogapp/app/data/models/Post_model.dart';
+import 'package:blogapp/app/data/models/post_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

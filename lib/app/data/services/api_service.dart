@@ -1,109 +1,274 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
+import 'package:blogapp/app/data/services/mock_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import '../models/Post_model.dart';
-import 'mock_service.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
+
+import '../../core/config/api_config.dart';
+import '../models/post_model.dart';
+
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+  final dynamic data;
+
+  ApiException({
+    required this.message,
+    this.statusCode,
+    this.data,
+  });
+
+  @override
+  String toString() => 'ApiException: $message';
+}
 
 class ApiService extends GetxService {
-  static const String baseUrl = 'YOUR_API_BASE_URL';
+  static const String baseUrl = ApiConfig.baseUrl;
+  final String _storageKey = 'auth_token';
+  late final GetStorage _storage;
 
-  Future<List<Post>> getPosts() async {
-    try {
-      // TODO: Replace with actual API call
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 800));
-      // final response = await http.get(Uri.parse('$baseUrl/stories'));
-      // if (response.statusCode == 200) {
-      //   final List<dynamic> data = json.decode(response.body);
-      //   return data.map((json) => Post.fromJson(json)).toList();
-      // } else {
-      //   throw Exception('Failed to load stories');
-      // }
-      return MockService.getMockPosts();
-    } catch (e) {
-      throw Exception('Failed to load stories: $e');
-    }
+  String? _authToken;
+  DateTime? _tokenExpiration;
+  Timer? _refreshTimer;
+
+  // Getters
+  String? get authToken => _authToken;
+  bool get isAuthenticated => _authToken != null;
+
+  // Headers
+  Map<String, String> get _headers => {
+        'Content-Type': 'application/json',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      };
+
+  // Initialisation du service
+  Future<ApiService> init() async {
+    _storage = GetStorage();
+    _loadAuthToken();
+    _setupTokenRefresh();
+    return this;
   }
 
-  Future<List<String>> getCategories() async {
-    try {
-      // TODO: Replace with actual API call
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 500));
-      // final response = await http.get(Uri.parse('$baseUrl/categories'));
-      // if (response.statusCode == 200) {
-      //   final List<dynamic> data = json.decode(response.body);
-      //   return data.map((category) => category.toString()).toList();
-      // } else {
-      //   throw Exception('Failed to load categories');
-      // }
-      return MockService.getMockCategories();
-    } catch (e) {
-      throw Exception('Failed to load categories: $e');
-    }
-  }
+  void _setupTokenRefresh() {
+    if (_tokenExpiration != null) {
+      // Annuler le timer existant s'il y en a un
+      _refreshTimer?.cancel();
 
-  Future<Post> getPostDetails(int id) async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/stories/$id'));
+      // Calculer le délai avant expiration (5 minutes avant)
+      final now = DateTime.now();
+      final timeUntilRefresh = _tokenExpiration!
+          .subtract(const Duration(minutes: 5))
+          .difference(now);
 
-      if (response.statusCode == 200) {
-        return Post.fromJson(json.decode(response.body));
+      if (timeUntilRefresh.isNegative) {
+        // Si le token est déjà expiré ou proche de l'expiration, rafraîchir immédiatement
+        refreshToken();
       } else {
-        throw Exception('Failed to load Post details');
+        // Programmer le rafraîchissement
+        _refreshTimer = Timer(timeUntilRefresh, refreshToken);
       }
-    } catch (e) {
-      throw Exception('Failed to connect to the server');
     }
   }
 
-  Future<void> createPost(Map<String, dynamic> PostData) async {
+  Future<void> refreshToken() async {
     try {
-      // TODO: Replace with actual API call
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 1));
-      // final response = await http.post(
-      //   Uri.parse('$baseUrl/stories'),
-      //   headers: {'Content-Type': 'application/json'},
-      //   body: json.encode(PostData),
-      // );
-      // if (response.statusCode == 201) {
-      //   return Post.fromJson(json.decode(response.body));
-      // } else {
-      //   throw Exception('Failed to create Post');
-      // }
-      // For now, just print the data that would be sent
-      print('Creating Post with data: $PostData');
-    } catch (e) {
-      throw Exception('Failed to create Post: $e');
-    }
-  }
-
-  Future<void> updatePost(int id, Map<String, dynamic> PostData) async {
-    try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/stories/$id'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(PostData),
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/refresh'),
+        headers: _headers,
       );
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to update Post');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        _authToken = data['token'];
+        _tokenExpiration = DateTime.now().add(const Duration(hours: 1));
+
+        // Sauvegarder le nouveau token
+        await _storage.write(_storageKey, {
+          'token': _authToken,
+          'expiration': _tokenExpiration!.toIso8601String(),
+        });
+
+        // Configurer le prochain rafraîchissement
+        _setupTokenRefresh();
+      } else {
+        // En cas d'échec, déconnecter l'utilisateur
+        logout();
       }
     } catch (e) {
-      throw Exception('Failed to connect to the server');
+      debugPrint('Erreur lors du rafraîchissement du token: $e');
+      logout();
     }
   }
 
-  Future<void> deletePost(int id) async {
+  void _loadAuthToken() {
+    final authData = _storage.read(_storageKey);
+
+    if (authData != null) {
+      _authToken = authData['token'];
+      _tokenExpiration = DateTime.tryParse(authData['expiration'] ?? '');
+      _setupTokenRefresh();
+    }
+  }
+
+  Future<void> _saveAuthToken(String token) async {
     try {
-      final response = await http.delete(Uri.parse('$baseUrl/stories/$id'));
-
-      if (response.statusCode != 204) {
-        throw Exception('Failed to delete Post');
-      }
+      _authToken = token;
+      _tokenExpiration = DateTime.now().add(const Duration(hours: 1));
+      await _storage.write(_storageKey, {
+        'token': token,
+        'expiration': _tokenExpiration!.toIso8601String(),
+      });
+      _setupTokenRefresh();
     } catch (e) {
-      throw Exception('Failed to connect to the server');
+      throw ApiException(message: 'Erreur lors de la sauvegarde du token: $e');
     }
   }
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Récupérer le token stocké si existant
+    _loadAuthToken();
+  }
+
+  // Méthode générique pour les requêtes HTTP
+  Future<T> _handleRequest<T>({
+    required Future<http.Response> Function() requestFunction,
+    required T Function(dynamic data) onSuccess,
+    String errorMessage = 'Erreur de requête',
+  }) async {
+    try {
+      final response = await requestFunction();
+      final data = json.decode(response.body);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return onSuccess(data);
+      } else {
+        throw ApiException(
+          message: data['message'] ?? errorMessage,
+          statusCode: response.statusCode,
+          data: data,
+        );
+      }
+    } on http.ClientException catch (e) {
+      throw ApiException(
+        message: 'Erreur de connexion: ${e.message}',
+      );
+    } on FormatException {
+      throw ApiException(
+        message: 'Erreur de format de réponse',
+      );
+    } catch (e) {
+      throw ApiException(
+        message: 'Erreur inattendue: $e',
+      );
+    }
+  }
+
+  // Méthodes CRUD génériques
+  Future<T> get<T>(String endpoint, T Function(dynamic) fromJson) async {
+    return _handleRequest(
+      requestFunction: () => http.get(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: _headers,
+      ),
+      onSuccess: (data) => fromJson(data),
+    );
+  }
+
+  Future<T> post<T>(
+    String endpoint,
+    dynamic body,
+    T Function(dynamic) fromJson,
+  ) async {
+    return _handleRequest(
+      requestFunction: () => http.post(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: _headers,
+        body: json.encode(body),
+      ),
+      onSuccess: (data) => fromJson(data),
+    );
+  }
+
+  Future<T> put<T>(
+    String endpoint,
+    dynamic body,
+    T Function(dynamic) fromJson,
+  ) async {
+    return _handleRequest(
+      requestFunction: () => http.put(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: _headers,
+        body: json.encode(body),
+      ),
+      onSuccess: (data) => fromJson(data),
+    );
+  }
+
+  Future<void> delete(String endpoint) async {
+    return _handleRequest(
+      requestFunction: () => http.delete(
+        Uri.parse('$baseUrl/$endpoint'),
+        headers: _headers,
+      ),
+      onSuccess: (_) {},
+    );
+  }
+
+  // Méthodes d'authentification
+  Future<void> login(String email, String password) async {
+    final response = await post<Map<String, dynamic>>(
+      ApiConfig.login,
+      {'email': email, 'password': password},
+      (data) => data as Map<String, dynamic>,
+    );
+
+    if (response['data']['token'] != null) {
+      await _saveAuthToken(response['data']['token']);
+    } else {
+      throw ApiException(message: 'Token non trouvé dans la réponse');
+    }
+  }
+
+  Future<void> logout() async {
+    _authToken = null;
+    _tokenExpiration = null;
+    _refreshTimer?.cancel();
+    await _storage.remove(_storageKey);
+  }
+
+  // Exemple de méthode spécifique pour les stories
+  Future<List<Post>> getPosts() async {
+    final List<Post> data = MockService.getMockPosts();
+    return data;
+    // return _handleRequest(
+    //   requestFunction: () => http.get(
+    //     Uri.parse('$baseUrl/stories'),
+    //     headers: _headers,
+    //   ),
+    //   onSuccess: (data) =>
+    //       (data as List).map((json) => Post.fromJson(json)).toList(),
+    //   errorMessage: 'Impossible de charger les stories',
+    // );
+  }
+  // Exemple de méthode spécifique pour les stories
+  Future<List<String>> getCategories() async {
+    final List<String> data = MockService.getMockCategories();
+    return data;
+    // return _handleRequest(
+    //   requestFunction: () => http.get(
+    //     Uri.parse('$baseUrl/stories'),
+    //     headers: _headers,
+    //   ),
+    //   onSuccess: (data) =>
+    //       (data as List).map((json) => Post.fromJson(json)).toList(),
+    //   errorMessage: 'Impossible de charger les stories',
+    // );
+  }
+
+  
 }

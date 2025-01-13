@@ -1,9 +1,15 @@
+import 'package:blogapp/app/core/config/api_config.dart';
+import 'package:blogapp/app/core/utils/snackbar_utils.dart';
+import 'package:blogapp/app/data/services/api_service.dart';
+import 'package:blogapp/app/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 class SignupController extends GetxController {
-  //TODO: Implement SignupController
-
+  //todo: Implement SignupController
+  final ApiService _apiService = Get.find<ApiService>();
+  final Rx<bool> isSubmitting = Rx<bool>(false);
+  // formulare controllers
   final GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
   final TextEditingController emailcontroller = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -58,15 +64,28 @@ class SignupController extends GetxController {
     return true;
   }
   Future<void> signup() async {
-    if(validateForm()){
-      //TODO: Implement Signup API call
-      // You can use a package like http to make the API call
-      //...
-      // Example:
-      // await http.post('https://your-api-url.com/signup', body: {
-      //   'email': emailController.text,
-      //   'password': passwordController.text
-
+if (validateForm()) {
+      try {
+        if(isSubmitting())return;
+        
+        isSubmitting.value = true;
+        await _apiService.post<Map<String,dynamic>>(
+          ApiConfig.register,
+          {
+            'username': emailcontroller.text.trim(),
+            'email': emailcontroller.text.trim(),
+            'password': passwordController.text,
+          },
+          (data)=>data,
+        );
+        // navigate to login page after signup successfull
+        SnackbarUtils.showSuccess(message:"compte creer avec succes");
+        Get.offAllNamed(Routes.LOGIN);
+      }catch (e){
+        SnackbarUtils.showError(message: e.toString(),title: 'Erreur de creation de compte',position: SnackPosition.BOTTOM);
+      }finally{
+        isSubmitting.value = false;
+      }
     }
   }
 }
