@@ -9,10 +9,7 @@ class DiscoverView extends GetView<DiscoverController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('DiscoverView'),
-        centerTitle: true,
-      ),
+
       body: const Center(
         child: Text(
           'DiscoverView is working',
