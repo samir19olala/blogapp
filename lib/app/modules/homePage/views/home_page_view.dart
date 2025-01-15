@@ -19,21 +19,23 @@ class HomePageView extends GetView<HomePageController> {
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: controller.fetchPosts,
-      child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            mainAxisExtent: 400,
-            maxCrossAxisExtent: 450,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-          ),
-          itemCount: controller.posts.length,
-          itemBuilder: (context, index) {
-            final post = controller.posts[index];
-            return PostCard(post: post);
-          }),
-    );
+    return Obx(() {
+      return RefreshIndicator(
+        onRefresh: controller.fetchPosts,
+        child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              mainAxisExtent: 400,
+              maxCrossAxisExtent: 450,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: controller.posts.length,
+            itemBuilder: (context, index) {
+              final post = controller.posts[index];
+              return PostCard(post: post);
+            }),
+      );
+    });
   }
 
   Widget _buildCategoryList() {
@@ -84,7 +86,9 @@ class HomePageView extends GetView<HomePageController> {
         body: Column(children: [
       _buildCategoryList(),
       Expanded(
-        child: _buildPostList(),
+        child: Obx(() {
+          return _buildPostList();
+        }),
       ),
     ]));
   }

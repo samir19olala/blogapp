@@ -5,7 +5,7 @@ import '../../discover/views/discover_view.dart';
 import '../../profile/views/profile_view.dart';
 
 class HomeController extends GetxController {
-  //TODO: Implement HomeController
+  //todo: Implement HomeController
   RxInt currentIndex = 0.obs;
   RxInt previousIndex = 0.obs;
   RxBool isWildScreen = false.obs;
@@ -15,9 +15,9 @@ class HomeController extends GetxController {
     currentIndex.value = index;
   }
 
-  List<Widget> pages() => [
+  RxList<Widget> pages() => [
         const HomePageView(),
         const DiscoverView(),
         const ProfileView(),
-      ];
+      ].obs;
 }
