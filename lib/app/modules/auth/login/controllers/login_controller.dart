@@ -73,7 +73,7 @@ class LoginController extends GetxController {
       try {
         if(isSubmitting.value) return;
         isSubmitting.value = true;
-        await _apiService.login(emailcontroller.text,passwordController.text);
+        await _apiService.login(emailcontroller.text.trim(),passwordController.text);
         await _loadUserProfile();
         SnackbarUtils.showSuccess(message:"connexion reussite ");
         Get.offAllNamed(Routes.HOME);
@@ -88,7 +88,7 @@ class LoginController extends GetxController {
   Future<void> _loadUserProfile() async {
     try{
     final userData = await _apiService.get<Map<String,dynamic>>(ApiConfig.currentUser,(data)=>data);
-    _currentUser.value = User.fromJson(userData);
+    _currentUser.value = User.fromJson(userData['data']);
     }catch(e){
       SnackbarUtils.showError(message: "impossible de charger le profil utilisateur ",title:'Error',position: SnackPosition.BOTTOM);
     }

@@ -30,18 +30,20 @@ class ApiService extends GetxService {
   final String _storageKey = 'auth_token';
   late final GetStorage _storage;
 
-  String? _authToken;
+  String? _accessToken;
+  String? _refreshToken;
   DateTime? _tokenExpiration;
   Timer? _refreshTimer;
 
   // Getters
-  String? get authToken => _authToken;
-  bool get isAuthenticated => _authToken != null;
+  String? get accessToken => _accessToken;
+  String? get refreshToken => _refreshToken;
+  bool get isAuthenticated => _accessToken != null;
 
   // Headers
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
-        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+        if (_accessToken != null) 'Authorization': 'Bearer $_accessToken',
       };
 
   // Initialisation du service
@@ -65,30 +67,35 @@ class ApiService extends GetxService {
 
       if (timeUntilRefresh.isNegative) {
         // Si le token est déjà expiré ou proche de l'expiration, rafraîchir immédiatement
-        refreshToken();
+        refreshTokens();
       } else {
         // Programmer le rafraîchissement
-        _refreshTimer = Timer(timeUntilRefresh, refreshToken);
+        _refreshTimer = Timer(timeUntilRefresh, refreshTokens);
       }
     }
   }
 
-  Future<void> refreshToken() async {
+  Future<void> refreshTokens() async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/auth/refresh'),
+        Uri.parse('$baseUrl/${ApiConfig.refreshToken}'),
         headers: _headers,
+        body:json.encode({
+         'refresh_token': _refreshToken,
+        })
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        _authToken = data['token'];
+        _accessToken = data['data']['accessToken'];
+        _refreshToken = data['data']['refreshToken'];
         _tokenExpiration = DateTime.now().add(const Duration(hours: 1));
 
         // Sauvegarder le nouveau token
         await _storage.write(_storageKey, {
-          'token': _authToken,
+          'access_token': _accessToken,
           'expiration': _tokenExpiration!.toIso8601String(),
+          'refree_token': _refreshToken,
         });
 
         // Configurer le prochain rafraîchissement
@@ -107,19 +114,22 @@ class ApiService extends GetxService {
     final authData = _storage.read(_storageKey);
 
     if (authData != null) {
-      _authToken = authData['token'];
+      _accessToken = authData['access_token'];
       _tokenExpiration = DateTime.tryParse(authData['expiration'] ?? '');
+      _refreshToken = authData['refresh_token'];
       _setupTokenRefresh();
     }
   }
 
-  Future<void> _saveAuthToken(String token) async {
+  Future<void> _saveAuthToken({required  accessToken,required String reflreshToken}) async {
     try {
-      _authToken = token;
+      _accessToken = accessToken;
+      
       _tokenExpiration = DateTime.now().add(const Duration(hours: 1));
       await _storage.write(_storageKey, {
-        'token': token,
+        'access_token': accessToken,
         'expiration': _tokenExpiration!.toIso8601String(),
+        'refresh_token': reflreshToken,
       });
       _setupTokenRefresh();
     } catch (e) {
@@ -227,15 +237,18 @@ class ApiService extends GetxService {
       (data) => data as Map<String, dynamic>,
     );
 
-    if (response['data']['token'] != null) {
-      await _saveAuthToken(response['data']['token']);
+    if (response['data']['accessToken'] != null) {
+      final accessToken = response['data']['accessToken'];
+      final refreshToken = response['data']['refreshToken'];
+      await _saveAuthToken(accessToken:accessToken,reflreshToken:refreshToken);
     } else {
       throw ApiException(message: 'Token non trouvé dans la réponse');
     }
   }
 
   Future<void> logout() async {
-    _authToken = null;
+    _accessToken = null;
+    _refreshToken = null;
     _tokenExpiration = null;
     _refreshTimer?.cancel();
     await _storage.remove(_storageKey);
