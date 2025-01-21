@@ -124,7 +124,7 @@ class ApiService extends GetxService {
   Future<void> _saveAuthToken({required  accessToken,required String reflreshToken}) async {
     try {
       _accessToken = accessToken;
-      
+      _refreshToken = reflreshToken;
       _tokenExpiration = DateTime.now().add(const Duration(hours: 1));
       await _storage.write(_storageKey, {
         'access_token': accessToken,

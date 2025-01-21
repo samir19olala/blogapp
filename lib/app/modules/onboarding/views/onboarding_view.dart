@@ -48,7 +48,7 @@ class OnboardingView extends GetView<OnboardingController> {
                 const SizedBox(height: 20),
                 CustomSecondaryButton(
                   buttonText: 'Register',
-                  onPressed: () => {},
+                  onPressed: () => {Get.toNamed(Routes.SIGNUP)},
                 ),
                 const SizedBox(height: 20),
                 CustomPrimaryButton(

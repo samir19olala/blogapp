@@ -80,7 +80,12 @@ if (validateForm()) {
         );
         // navigate to login page after signup successfull
         SnackbarUtils.showSuccess(message:"compte creer avec succes");
-        Get.offAllNamed(Routes.LOGIN);
+        Get.toNamed(
+          Routes.VERIFYEMAIL,
+          arguments: {
+            "email":emailcontroller.text
+          });
+          
       }catch (e){
         SnackbarUtils.showError(message: e.toString(),title: 'Erreur de creation de compte',position: SnackPosition.BOTTOM);
       }finally{

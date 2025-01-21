@@ -23,7 +23,7 @@ class CustomPrimaryButton extends StatelessWidget {
         // fixedSize: Size(
         //   double.infinity,48)
       ),
-      child:isSubmitting?const CircularProgressIndicator(): Text(buttonText), 
+      child:isSubmitting?const CircularProgressIndicator(color: Colors.white,): Text(buttonText), 
 
         // child: Row(
         // mainAxisAlignment: MainAxisAlignment.center,

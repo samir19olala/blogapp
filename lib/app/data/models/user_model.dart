@@ -4,18 +4,19 @@ class User{
   final String id;
   final String name;
   final String email;
-  final String avatar;
+  final String? avatar;
   final String role;
 
   User({
     required this.id,
     required this.name,
     required this.email,
-    required this.avatar,
+    this.avatar,
     required this.role
     });
 
   factory User.fromJson(Map<String,dynamic>json){
+    print(json);
     return User(
       id: json["_id"],
       name:json["name"],

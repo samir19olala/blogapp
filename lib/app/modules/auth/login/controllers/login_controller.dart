@@ -78,6 +78,7 @@ class LoginController extends GetxController {
         SnackbarUtils.showSuccess(message:"connexion reussite ");
         Get.offAllNamed(Routes.HOME);
       }catch (e){
+        printError(info:e.toString());
         SnackbarUtils.showError(message: e.toString(),position: SnackPosition.BOTTOM);
       }finally{
         isSubmitting.value = false;
@@ -90,7 +91,8 @@ class LoginController extends GetxController {
     final userData = await _apiService.get<Map<String,dynamic>>(ApiConfig.currentUser,(data)=>data);
     _currentUser.value = User.fromJson(userData['data']);
     }catch(e){
-      SnackbarUtils.showError(message: "impossible de charger le profil utilisateur ",title:'Error',position: SnackPosition.BOTTOM);
+      printError(info:e.toString());
+      SnackbarUtils.showError(message: "impossible de charger le profil utilisateur : ${e.toString()}",title:'Error',position: SnackPosition.BOTTOM,duration: Duration(seconds: 10));
     }
   }
 }

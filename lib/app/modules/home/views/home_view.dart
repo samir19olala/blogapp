@@ -10,6 +10,9 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black38,
+      ),
       body: AnimatedSwitcher(
           duration: Duration(milliseconds: 500),
           switchInCurve: Curves.bounceIn,
