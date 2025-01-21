@@ -11,15 +11,18 @@ class VerifyemailView extends GetView<VerifyemailController> {
   @override
   Widget build(BuildContext context) {
     final PinTheme pinTheme = PinTheme(
-      height: 34,
-      width: 28,
-      margin: const EdgeInsets.all(8),
+      height: 50,
+      width: 45,
+      margin: const EdgeInsets.all(2),
+      padding: const EdgeInsets.all(8),
       textStyle: TextStyle(
         color: Get.theme.colorScheme.primary,
         fontSize: 25,
         fontWeight: FontWeight.bold,
       ),
       decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          color: Get.theme.colorScheme.primary.withOpacity(0.1),
           border: Border(
               bottom:
                   BorderSide(width: 2, color: Get.theme.colorScheme.primary))),
@@ -38,7 +41,7 @@ class VerifyemailView extends GetView<VerifyemailController> {
           child: Center(
             child: Container(
               padding: const EdgeInsets.all(20),
-              constraints: BoxConstraints(minWidth: 450),
+              constraints: BoxConstraints(maxWidth: 450),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,

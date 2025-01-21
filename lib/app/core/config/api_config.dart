@@ -1,7 +1,7 @@
 
 class ApiConfig {
   // android addr 10.0.2.2
-  static const String ipAddress = "192.168.1.72";
+  static const String ipAddress = "172.16.4.134";
   static const String baseUrl = 
       'http://$ipAddress:3000/api/v1'; // À remplacer par votre URL d'API
 
