@@ -88,8 +88,12 @@ class LoginController extends GetxController {
 
   Future<void> _loadUserProfile() async {
     try{
-    final userData = await _apiService.get<Map<String,dynamic>>(ApiConfig.currentUser,(data)=>data);
-    _currentUser.value = User.fromJson(userData['data']);
+    final userData = await _apiService.get<User>(
+      ApiConfig.currentUser,(data)=>User.fromJson(data));
+
+    _currentUser.value = userData;
+    _currentUser.refresh();
+    
     }catch(e){
       printError(info:e.toString());
       SnackbarUtils.showError(message: "impossible de charger le profil utilisateur : ${e.toString()}",title:'Error',position: SnackPosition.BOTTOM,duration: Duration(seconds: 10));

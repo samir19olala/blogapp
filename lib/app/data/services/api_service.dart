@@ -87,8 +87,8 @@ class ApiService extends GetxService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        _accessToken = data['data']['accessToken'];
-        _refreshToken = data['data']['refreshToken'];
+        _accessToken = data['accessToken'];
+        _refreshToken = data['refreshToken'];
         _tokenExpiration = DateTime.now().add(const Duration(hours: 1));
 
         // Sauvegarder le nouveau token
@@ -155,7 +155,7 @@ class ApiService extends GetxService {
       final data = json.decode(response.body);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        return onSuccess(data);
+        return onSuccess(data['data']);
       } else {
         throw ApiException(
           message: data['message'] ?? errorMessage,
@@ -237,9 +237,9 @@ class ApiService extends GetxService {
       (data) => data as Map<String, dynamic>,
     );
 
-    if (response['data']['accessToken'] != null) {
-      final accessToken = response['data']['accessToken'];
-      final refreshToken = response['data']['refreshToken'];
+    if (response['accessToken'] != null) {
+      final accessToken = response['accessToken'];
+      final refreshToken = response['refreshToken'];
       await _saveAuthToken(accessToken:accessToken,reflreshToken:refreshToken);
     } else {
       throw ApiException(message: 'Token non trouvé dans la réponse');

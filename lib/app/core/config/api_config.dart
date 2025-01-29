@@ -9,6 +9,7 @@ class ApiConfig {
   static const String login = 'auth/login';
   static const String register = 'auth/register';
   static const String currentUser = 'auth/me';
+  static const String refreshPin = 'auth/refresh-pin';
 
   static const String refreshToken = 'auth/refresh-hoken';
   static const String forgotPassword = 'auth/forgot-password';
