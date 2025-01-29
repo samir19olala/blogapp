@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import '../../widgets/app_drawer.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -11,7 +12,19 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black38,
+        title: Row(children: [
+          Image.asset('assets/images/logo_blogapps.png',height: 30,),
+          const SizedBox(width: 8,),
+          Text('JPGL New Blog', style: TextStyle(color: Colors.white, fontSize: 20)),
+        ],),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications_outlined),
+            onPressed: () {
+             
+            },
+          )
+        ],
       ),
       body: AnimatedSwitcher(
           duration: Duration(milliseconds: 500),
@@ -85,6 +98,8 @@ class HomeView extends GetView<HomeController> {
         }
         return const SizedBox.shrink();
       }),
+
+      drawer: AppDrawer(),
     );
   }
 }

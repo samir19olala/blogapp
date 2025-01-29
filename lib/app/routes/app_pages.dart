@@ -90,6 +90,7 @@ class AppPages {
     GetPage(
       name: _Paths.CATEGORY_FORM,
       page: () => const CategoryFormView(),
+      binding: CategoryBinding(),
     ),
   ];
 }
