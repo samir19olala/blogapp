@@ -12,6 +12,7 @@ import '../modules/auth/verifyemail/bindings/verifyemail_binding.dart';
 import '../modules/auth/verifyemail/views/verifyemail_view.dart';
 import '../modules/category/bindings/category_binding.dart';
 import '../modules/category/views/category_view.dart';
+import '../modules/category/views/category_form_view.dart';
 import '../modules/discover/bindings/discover_binding.dart';
 import '../modules/discover/views/discover_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -85,6 +86,10 @@ class AppPages {
       name: _Paths.CATEGORY,
       page: () => const CategoryView(),
       binding: CategoryBinding(),
+    ),
+    GetPage(
+      name: _Paths.CATEGORY_FORM,
+      page: () => const CategoryFormView(),
     ),
   ];
 }

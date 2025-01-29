@@ -1,7 +1,7 @@
 
 class Category{
 
-  final String id;
+  final String? id;
   final String name;
   final String? description;
   final DateTime? createdAt;

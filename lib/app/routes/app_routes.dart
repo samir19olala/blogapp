@@ -15,6 +15,7 @@ abstract class Routes {
   static const PROFILE = _Paths.PROFILE;
   static const VERIFYEMAIL = _Paths.VERIFYEMAIL;
   static const CATEGORY = _Paths.CATEGORY;
+  static const CATEGORY_FORM = _Paths.CATEGORY_FORM;
 }
 
 abstract class _Paths {
@@ -30,4 +31,5 @@ abstract class _Paths {
   static const PROFILE = '/profile';
   static const VERIFYEMAIL = '/verifyemail';
   static const CATEGORY = '/category';
+  static const CATEGORY_FORM = '/category_form';
 }
